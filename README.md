@@ -9,6 +9,8 @@ in the middle. The game is to identify as many words as possible using only
 these letters, which can be repeated, and where the letter in the center must be
 used.
 
+[Example](https://hackpad-attachments.s3.amazonaws.com/cmsc201f15.hackpad.com_dX1Mr4qvQnX_p.460422_1441302596606_spellingbee.png)
+
 Each word is worth one point, and words using all seven letters are worth 3
 points.
 
@@ -31,11 +33,14 @@ and generates 51912 unique puzzles.
 The list of all valid puzzles is here:
 https://storage.googleapis.com/spelling-bee/ls-7.txt
 
-Each puzzle is named after the letters in the puzzle, where the first letter in
-the name is the required letter. For example, answers to the puzzle `eirstad`
-must include the letter `e`.
+The name of the puzzle is the letters in the puzzle, sorted A-Z, then rotated so
+that the required letter is first.
 
-The answers to that puzzle are at:
+A puzzle with letters `R`, `T`, `D`, `A`, `S`, `I`, and the required center
+letter `E` is named by the letters in the puzzle, sorted (`adeirst`), then
+rotated so it starts with `e` (`eirstad`).
+
+So the answers to that puzzle are at:
 https://storage.googleapis.com/spelling-bee/eirstad.txt
 
 The last line of the file is the total number of points for that puzzle.
