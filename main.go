@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"runtime/pprof"
 	"strings"
-	"sync"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -18,7 +17,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyz"
 var (
 	wordsFile  = flag.String("words_file", "/usr/share/dict/words", "File containing valid words")
 	numLetters = flag.Int("num_letters", 3, "Number of letters in resulting puzzles")
-	parallel   = flag.Int("parallel", 4, "Number of goroutines to use to match words")
 
 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 )
@@ -41,31 +39,10 @@ func main() {
 	shuffled := make(chan string)
 	go shuffle(strings, shuffled)
 
-	// Start the goroutine to consume puzzles and write files, block exit on it
-	// completing.
 	puzzles := make(chan puzzle)
-	var wg2 sync.WaitGroup
-	wg2.Add(1)
-	go func() {
-		defer wg2.Done()
-		writePuzzles(puzzles)
-	}()
+	go matchWords(shuffled, puzzles)
 
-	// Start N goroutines to consume shuffled strings and generate puzzles, block
-	// closing puzzles chan until all are done, which will cause writePuzzles to
-	// finish.
-	var wg sync.WaitGroup
-	for i := 0; i < *parallel; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			matchWords(shuffled, puzzles)
-		}()
-	}
-	wg.Wait()
-	close(puzzles)
-
-	wg2.Wait()
+	writePuzzles(puzzles)
 }
 
 // genAllStrings generates all unique strings of length n and sends them to
@@ -194,6 +171,7 @@ func matchWords(in <-chan string, out chan<- puzzle) {
 			maxPts:  maxPts,
 		}
 	}
+	close(out)
 }
 
 func writePuzzles(in <-chan puzzle) {
