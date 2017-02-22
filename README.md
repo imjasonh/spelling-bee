@@ -1,6 +1,6 @@
 # Spelling Bee
 
-Generates NYT Spelling Bee puzzles
+Generates NYT Spelling Bee puzzles and answers
 
 ## Rules
 
@@ -9,24 +9,24 @@ in the middle. The game is to identify as many words as possible using only
 these letters, which can be repeated, and where the letter in the center must be
 used.
 
-[Example](https://hackpad-attachments.s3.amazonaws.com/cmsc201f15.hackpad.com_dX1Mr4qvQnX_p.460422_1441302596606_spellingbee.png)
-
-Each word is worth one point, and words using all seven letters are worth 3
+Each word is worth one point, and words using all seven letters are worth three
 points.
 
 Generally, underneath the puzzle there's a scale saying "XX points is good, YY
 points is great, ZZ points is genius". The list of answers is printed in next
 week's issue.
 
+[Example](https://hackpad-attachments.s3.amazonaws.com/cmsc201f15.hackpad.com_dX1Mr4qvQnX_p.460422_1441302596606_spellingbee.png)
+
 For the purposes of generating puzzles, a puzzle is considered "valid" if it has
-at least 10 answers, to weed out puzzles with too few answers, and if there is
-at least one answer that uses every letter, because finding the 3-pointer is
+at least ten answers, to weed out puzzles with too few answers, and if there is
+at least one answer that uses every letter, because finding the three-pointer is
 best part.
 
 ## Runtime
 
-Without parallelism, generating 7-letter puzzles takes about 5 and a half hours,
-and generates 51912 unique puzzles.
+Without parallelism, generating seven-letter puzzles takes about five and a half
+hours, and generates 51,912 unique puzzles.
 
 ## Results
 
@@ -49,7 +49,7 @@ The last line of the file is the total number of points for that puzzle.
 
 ### Longest answers
 
-48 puzzles have an answer with 15 letters, all of which are 3-point answers.
+48 puzzles have an answer with 15 letters, all of which are three-point answers.
 
 ```
 7 unconsciousness
@@ -64,7 +64,7 @@ The last line of the file is the total number of points for that puzzle.
 
 ### Most popular answers
 
-The most popular answer is "deeded", which is found in 3630 different puzzles.
+The most popular answer is "deeded", which is found in 3,630 different puzzles.
 Basically, any puzzle that has "e" and "d" in it, where either "e" or "d" is the
 required letter.
 
@@ -81,9 +81,10 @@ required letter.
 
 62 different words are only found once in all the puzzles.
 
-Nearly all of these are 3-point answers using all the letters in the puzzle.
+Nearly all of these are three-point answers using all the letters in the puzzle.
 Exceptions come from puzzles without enough answers to be valid, or answers like
-`chintz` where the only longer answer is `chintzy` which is a 3-point answer.
+`chintz` where the only longer answer is `chintzy` which is a three-point
+answer.
 
 ```
 1 backward
@@ -183,7 +184,7 @@ points.
 
 ### Puzzles with the fewest answers
 
-There are 563 puzzles with only 10 answers, among them:
+There are 563 puzzles with only ten answers, among them:
 
 ```
 10 abcdkrw
@@ -199,7 +200,7 @@ There are 563 puzzles with only 10 answers, among them:
 517 puzzles only have 12 points.
 
 12 points is the fewest possible points for a valid puzzle, since every puzzle
-must have 10 answers and at least one of them must be worth 3 points.
+must have ten answers and at least one of them must be worth three points.
 
 ```
 12 abcfhkl
@@ -211,4 +212,4 @@ must have 10 answers and at least one of them must be worth 3 points.
 ```
 
 Puzzles that have only 10 answers worth more than 12 points must include
-multiple 3-point answers.
+multiple three-point answers.
