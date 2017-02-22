@@ -4,10 +4,10 @@ Generates NYT Spelling Bee puzzles and answers
 
 ## Rules
 
-Spelling Bee puzzles present solvers with 7 letters in a circle, with one letter
-in the middle. The game is to identify as many words as possible using only
-these letters, which can be repeated, and where the letter in the center must be
-used.
+Spelling Bee puzzles present solvers with seven letters in a circle, with one
+letter in the middle. The game is to identify as many words as possible using
+only these letters, which can be repeated, and where the letter in the center
+must be used.
 
 Each word is worth one point, and words using all seven letters are worth three
 points.
