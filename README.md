@@ -49,17 +49,18 @@ The last line of the file is the total number of points for that puzzle.
 
 ### Longest answers
 
-48 puzzles have an answer with 15 letters, all of which are three-point answers.
+48 puzzles include an answer with 15 letters, all of which are three-point
+answers.
 
 ```
-7 unconsciousness
-7 superstructures
-7 nonintervention
-7 interconnection
-7 inconveniencing
-7 inconsistencies
-7 consciousnesses
-6 nationalization
+unconsciousness
+superstructures
+nonintervention
+interconnection
+inconveniencing
+inconsistencies
+consciousnesses
+nationalization
 ```
 
 ### Most popular answers
@@ -87,74 +88,74 @@ Exceptions come from puzzles without enough answers to be valid, or answers like
 answer.
 
 ```
-1 backward
-1 bigotry
-1 blindfold
-1 bloodhound
-1 bobwhite
-1 bullhorn
-1 bumpkin
-1 burdock
-1 chintz
-1 chintzy
-1 crudity
-1 dizzy
-1 dogfight
-1 drawback
-1 equinox
-1 exorcize
-1 forklift
-1 fortify
-1 frigidity
-1 fullback
-1 girlhood
-1 gluttony
-1 gryphon
-1 halfback
-1 helpful
-1 homepage
-1 homophobia
-1 hoodwink
-1 horribly
-1 hunchback
-1 hurtful
-1 imbroglio
-1 invincibly
-1 jackpot
-1 jollity
-1 jovial
-1 jovially
-1 judicial
-1 kazoo
-1 liturgy
-1 luxury
-1 menfolk
-1 mindful
-1 monthly
-1 mortify
-1 mythology
-1 orthodoxy
-1 pettifog
-1 prodigy
-1 public
-1 publicly
-1 quandary
-1 quickly
-1 rhombi
-1 rhomboid
-1 truthful
-1 truthfully
-1 unkempt
-1 unmindful
-1 wakeful
-1 windfall
-1 withhold
+backward
+bigotry
+blindfold
+bloodhound
+bobwhite
+bullhorn
+bumpkin
+burdock
+chintz
+chintzy
+crudity
+dizzy
+dogfight
+drawback
+equinox
+exorcize
+forklift
+fortify
+frigidity
+fullback
+girlhood
+gluttony
+gryphon
+halfback
+helpful
+homepage
+homophobia
+hoodwink
+horribly
+hunchback
+hurtful
+imbroglio
+invincibly
+jackpot
+jollity
+jovial
+jovially
+judicial
+kazoo
+liturgy
+luxury
+menfolk
+mindful
+monthly
+mortify
+mythology
+orthodoxy
+pettifog
+prodigy
+public
+publicly
+quandary
+quickly
+rhombi
+rhomboid
+truthful
+truthfully
+unkempt
+unmindful
+wakeful
+windfall
+withhold
 ```
 
 ### Puzzles with the most answers
 
 The puzzle `eirstad` has the most answers, at 456. Interestingly, `deeded` is an
-answer in this puzzle, and #3 in the list.
+answer in the #1 and #3 puzzles in the list.
 
 ```
 456 eirstad
@@ -187,12 +188,12 @@ points.
 There are 563 puzzles with only ten answers, among them:
 
 ```
-10 abcdkrw
-10 abcfhkl
-10 abdgotu
-10 abehitu
-10 abeiotv
-...
+abcdkrw
+abcfhkl
+abdgotu
+abehitu
+abeiotv
+...and 558 more
 ```
 
 ### Puzzles worth the fewest total points:
@@ -203,12 +204,12 @@ There are 563 puzzles with only ten answers, among them:
 must have ten answers and at least one of them must be worth three points.
 
 ```
-12 abcfhkl
-12 abdgotu
-12 abehitu
-12 abeiotv
-12 aceiloz
-...
+abcfhkl
+abdgotu
+abehitu
+abeiotv
+aceiloz
+...and 512 more
 ```
 
 Puzzles that have only 10 answers worth more than 12 points must include
