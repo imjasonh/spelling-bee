@@ -10,13 +10,15 @@ import (
 	"regexp"
 	"runtime/pprof"
 	"strings"
+	"sync"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
 var (
-	wordsFile  = flag.String("words_file", "/usr/share/dict/words", "File containing words")
-	numLetters = flag.Int("num_letters", 3, "Number of letters")
+	wordsFile  = flag.String("words_file", "/usr/share/dict/words", "File containing valid words")
+	numLetters = flag.Int("num_letters", 3, "Number of letters in resulting puzzles")
+	parallel   = flag.Int("parallel", 4, "Number of goroutines to use to match words")
 
 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 )
@@ -33,16 +35,37 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	strings := make(chan string, 1000)
+	strings := make(chan string)
 	go genAllStrings(*numLetters, strings)
 
-	shuffled := make(chan string, 1000)
+	shuffled := make(chan string)
 	go shuffle(strings, shuffled)
 
-	puzzles := make(chan puzzle, 1000)
-	go matchWords(shuffled, puzzles)
+	// Start the goroutine to consume puzzles and write files, block exit on it
+	// completing.
+	puzzles := make(chan puzzle)
+	var wg2 sync.WaitGroup
+	wg2.Add(1)
+	go func() {
+		defer wg2.Done()
+		writePuzzles(puzzles)
+	}()
 
-	writePuzzles(puzzles)
+	// Start N goroutines to consume shuffled strings and generate puzzles, block
+	// closing puzzles chan until all are done, which will cause writePuzzles to
+	// finish.
+	var wg sync.WaitGroup
+	for i := 0; i < *parallel; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			matchWords(shuffled, puzzles)
+		}()
+	}
+	wg.Wait()
+	close(puzzles)
+
+	wg2.Wait()
 }
 
 // genAllStrings generates all unique strings of length n and sends them to
@@ -93,12 +116,12 @@ type puzzle struct {
 
 // matchWords emits all words that match in (with spelling bee semantics).
 func matchWords(in <-chan string, out chan<- puzzle) {
+	// TODO: Don't duplicate this work for each matcher goroutine.
 	f, err := os.Open(*wordsFile)
 	if err != nil {
 		log.Fatalf("Open(%q): %v", *wordsFile, err)
 	}
 	r := bufio.NewReader(f)
-
 	validRE := regexp.MustCompile("^([a-z]+)$")
 	allWords := []string{}
 	for {
@@ -123,7 +146,6 @@ func matchWords(in <-chan string, out chan<- puzzle) {
 		allWords = append(allWords, w)
 	}
 	f.Close()
-
 	fmt.Println("Matching", len(allWords), "words")
 
 	for s := range in {
@@ -172,7 +194,6 @@ func matchWords(in <-chan string, out chan<- puzzle) {
 			maxPts:  maxPts,
 		}
 	}
-	close(out)
 }
 
 func writePuzzles(in <-chan puzzle) {
