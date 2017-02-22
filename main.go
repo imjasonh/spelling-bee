@@ -36,11 +36,11 @@ func main() {
 	strings := make(chan string)
 	go genAllStrings(*numLetters, strings)
 
-	shuffled := make(chan string)
-	go shuffle(strings, shuffled)
+	rotated := make(chan string)
+	go rotate(strings, rotated)
 
 	puzzles := make(chan puzzle)
-	go matchWords(shuffled, puzzles)
+	go matchWords(rotated, puzzles)
 
 	writePuzzles(puzzles)
 }
@@ -65,7 +65,7 @@ func genAllStrings(n int, out chan<- string) {
 	close(out)
 }
 
-// shuffle emits shuffled versions of the string.
+// rotate emits rotated versions of the string.
 //
 // If s is "abcdefg", out will be sent:
 // - abcdefg
@@ -75,7 +75,7 @@ func genAllStrings(n int, out chan<- string) {
 // - efgabcd
 // - fgabcde
 // - gabcdef
-func shuffle(in <-chan string, out chan<- string) {
+func rotate(in <-chan string, out chan<- string) {
 	for s := range in {
 		for i := 0; i < len(s); i++ {
 			first, rest := s[:i], s[i:]
