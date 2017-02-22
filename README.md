@@ -26,6 +26,20 @@ best part.
 Without parallelism, generating 7-letter puzzles takes about 5 and a half hours,
 and generates 51912 unique puzzles.
 
+## Results
+
+The list of all valid puzzles is here:
+https://storage.googleapis.com/spelling-bee/ls-7.txt
+
+Each puzzle is named after the letters in the puzzle, where the first letter in
+the name is the required letter. For example, answers to the puzzle `eirstad`
+must include the letter `e`.
+
+The answers to that puzzle are at:
+https://storage.googleapis.com/spelling-bee/eirstad.txt
+
+The last line of the file is the total number of points for that puzzle.
+
 ## Findings
 
 ### Longest answers
