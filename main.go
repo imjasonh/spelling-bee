@@ -7,9 +7,10 @@ import (
 	"io"
 	"log"
 	"os"
-	"regexp"
 	"runtime/pprof"
 	"strings"
+	"sync"
+	"time"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -17,6 +18,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyz"
 var (
 	wordsFile  = flag.String("words_file", "/usr/share/dict/words", "File containing valid words")
 	numLetters = flag.Int("num_letters", 3, "Number of letters in resulting puzzles")
+	parallel   = flag.Int("parallel", 3, "Number of goroutines to use to generate puzzles")
+	v          = flag.Bool("v", false, "verbose logging")
 
 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 )
@@ -40,9 +43,65 @@ func main() {
 	go rotate(strings, rotated)
 
 	puzzles := make(chan puzzle)
-	go matchWords(rotated, puzzles)
 
-	writePuzzles(puzzles)
+	// Consume puzzles and write files.
+	var wg2 sync.WaitGroup
+	wg2.Add(1)
+	go func() {
+		defer wg2.Done()
+		writePuzzles(puzzles)
+	}()
+
+	allWords := genAllWords()
+
+	// Consume rotated words and generate puzzles.
+	var wg sync.WaitGroup
+	for i := 0; i < *parallel; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			matchWords(allWords, rotated, puzzles)
+		}()
+	}
+	wg.Wait()
+	// When puzzle generators are done, close puzzles. This will cause
+	// writePuzzles to finish, and the program to exit.
+	close(puzzles)
+
+	wg2.Wait()
+}
+
+func genAllWords() []string {
+	f, err := os.Open(*wordsFile)
+	if err != nil {
+		log.Fatalf("Open(%q): %v", *wordsFile, err)
+	}
+	r := bufio.NewReader(f)
+	allWords := []string{}
+	for {
+		l, err := r.ReadBytes('\n')
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("ReadBytes: %v", err)
+		}
+		w := string(l)
+		w = strings.TrimSpace(w)
+		// Words must be >5 letters.
+		if len(w) < 5 {
+			continue
+		}
+		// Words must be lowercase, no punctuation.
+		if !containsOnly(w, alphabet) {
+			continue
+		}
+
+		allWords = append(allWords, w)
+	}
+	f.Close()
+	fmt.Println("Matching", len(allWords), "words")
+	return allWords
 }
 
 // genAllStrings generates all unique strings of length n and sends them to
@@ -91,42 +150,28 @@ type puzzle struct {
 	maxPts  int
 }
 
-// matchWords emits all words that match in (with spelling bee semantics).
-func matchWords(in <-chan string, out chan<- puzzle) {
-	// TODO: Don't duplicate this work for each matcher goroutine.
-	f, err := os.Open(*wordsFile)
-	if err != nil {
-		log.Fatalf("Open(%q): %v", *wordsFile, err)
+func containsOnly(s, target string) bool {
+	rs := map[rune]struct{}{}
+	for _, r := range target {
+		rs[r] = struct{}{}
 	}
-	r := bufio.NewReader(f)
-	validRE := regexp.MustCompile("^([a-z]+)$")
-	allWords := []string{}
-	for {
-		l, err := r.ReadBytes('\n')
-		if err == io.EOF {
-			break
+	for _, r := range s {
+		if _, found := rs[r]; !found {
+			return false
 		}
-		if err != nil {
-			log.Fatalf("ReadBytes: %v", err)
-		}
-		w := string(l)
-		w = strings.TrimSpace(w)
-		// Words must be >5 letters.
-		if len(w) < 5 {
-			continue
-		}
-		// Words must be lowercase, no punctuation.
-		if !validRE.MatchString(w) {
-			continue
-		}
+	}
+	return true
+}
 
-		allWords = append(allWords, w)
-	}
-	f.Close()
-	fmt.Println("Matching", len(allWords), "words")
+// matchWords emits all words that match in (with spelling bee semantics).
+func matchWords(allWords []string, in <-chan string, out chan<- puzzle) {
 
 	for s := range in {
-		re := regexp.MustCompile(fmt.Sprintf("^([%s]+)$", s))
+		runes := map[rune]struct{}{}
+		for _, c := range s {
+			runes[c] = struct{}{}
+		}
+
 		words := []string{}
 		for _, word := range allWords {
 			// Words must contain the first character.
@@ -134,13 +179,17 @@ func matchWords(in <-chan string, out chan<- puzzle) {
 				continue
 			}
 
-			if re.MatchString(word) {
+			// Words must contain only letters in this set.
+			if containsOnly(word, s) {
 				words = append(words, word)
 			}
 		}
 
 		// This combination of letters doesn't produce enough answers.
 		if len(words) < 10 {
+			if *v {
+				fmt.Print("1")
+			}
 			continue
 		}
 
@@ -162,6 +211,9 @@ func matchWords(in <-chan string, out chan<- puzzle) {
 			}
 		}
 		if !someContainsAll {
+			if *v {
+				fmt.Print("2")
+			}
 			continue
 		}
 
@@ -171,21 +223,33 @@ func matchWords(in <-chan string, out chan<- puzzle) {
 			maxPts:  maxPts,
 		}
 	}
-	close(out)
 }
 
 func writePuzzles(in <-chan puzzle) {
-	for p := range in {
-		fn := p.letters + ".txt"
-		f, err := os.Create(fn)
-		if err != nil {
-			log.Fatalf("Create(%q): %v", fn, err)
+	t := time.Tick(time.Second)
+	for {
+		select {
+		case p, ok := <-in:
+			if !ok {
+				return
+			}
+			fn := p.letters + ".txt"
+			f, err := os.Create(fn)
+			if err != nil {
+				log.Fatalf("Create(%q): %v", fn, err)
+			}
+			for _, w := range p.words {
+				fmt.Fprintln(f, w)
+			}
+			fmt.Fprintln(f, p.maxPts)
+			if *v {
+				fmt.Println("wrote", p.letters)
+			}
+			f.Close()
+		case <-t:
+			if *v {
+				fmt.Print("%")
+			}
 		}
-		for _, w := range p.words {
-			fmt.Fprintln(f, w)
-		}
-		fmt.Fprintln(f, p.maxPts)
-		fmt.Printf("Wrote %s\n", fn)
-		f.Close()
 	}
 }
