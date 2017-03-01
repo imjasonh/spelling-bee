@@ -220,11 +220,12 @@ multiple three-point answers.
 Nothing requires the puzzle to have 7 available letters. If we only provide 6
 letters, we get fewer valid puzzles, but it takes less time to compute them.
 
-# letters | time | # puzzles
-
---------------------------------------------------------------------------------
-
-3 | 20s | 0 4 | 2m20s | 189 5 | 10m29s | 6139 6 | 40m39s | 29105 7 | 180m41s |
-51912
+| # letters | time | # puzzles| 
+------------------------------
+| 3 | 20s | 0 |
+| 4 | 2m20s | 189 |
+| 5 | 10m29s | 6139 |
+| 6 | 40m39s | 29105 |
+| 7 | 180m41s | 51912 |
 
 Times are using `-parallel=100` on a 12-core machine.
