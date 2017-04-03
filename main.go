@@ -96,12 +96,27 @@ func genAllWords() []string {
 		if !containsOnly(w, alphabet) {
 			continue
 		}
+		// Words must contain <=N unique letters.
+		if !hasAtMostLetters(w, *numLetters) {
+			continue
+		}
 
 		allWords = append(allWords, w)
 	}
 	f.Close()
 	fmt.Println("Matching", len(allWords), "words")
 	return allWords
+}
+
+func hasAtMostLetters(s string, n int) bool {
+	cs := map[rune]struct{}{}
+	for _, c := range s {
+		cs[c] = struct{}{}
+		if len(cs) > n {
+			return false
+		}
+	}
+	return true
 }
 
 // genAllStrings generates all unique strings of length n and sends them to
